@@ -111,8 +111,13 @@ defmodule ExAdmin.Table do
     end
   end
 
-  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label),
-    do: build_th(label, opts, table_opts)
+  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label) do
+    if String.to_charlist(label) |> Enum.any?(&(&1 > 255)) do
+      th(".th-#{parameterize field_name} #{humanize label}")
+    else
+      build_th(label, opts, table_opts)
+    end
+  end
   def build_th({field_name, opts}, table_opts) when is_atom(field_name),
     do: build_th(Atom.to_string(field_name), opts, table_opts)
   def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label),
